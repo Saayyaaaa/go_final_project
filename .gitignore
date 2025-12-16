@@ -1,0 +1,39 @@
+.env.example
+
+# ===== Go =====
+# Скомпилированные бинарники
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# ===== Env =====
+.env
+.env.*
+
+# ===== IDE / Editors =====
+.idea/
+.vscode/
+*.swp
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Build / temp =====
+bin/
+dist/
+tmp/
+
+# ===== Go workspace (если появится) =====
+go.work
+go.work.sum
