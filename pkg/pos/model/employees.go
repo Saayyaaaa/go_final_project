@@ -109,7 +109,16 @@ func (e EmployeeModel) GetAll() (*[]Employee, error) {
 
 	for rows.Next() {
 		var employee Employee
-		err := rows.Scan(&employee.Id, &employee.Name, &employee.Surname, &employee.Password, &employee.IsAdmin, &employee.PhoneNumber, &employee.Enrolled)
+		err := rows.Scan(
+			&employee.Id,
+			&employee.Name,
+			&employee.Surname,
+			&employee.Password,
+			&employee.IsAdmin,
+			&employee.Activated,
+			&employee.PhoneNumber,
+			&employee.Enrolled,
+		)
 		if err != nil {
 			return nil, err
 		}
