@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"log"
 	"time"
-	//"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var AnonymousEmployee = &Employee{}
@@ -34,11 +33,21 @@ func (e *Employee) IsAnonymous() bool {
 
 func (e EmployeeModel) Register(emp *Employee) error {
 	query := `
-			INSERT INTO employee (name, surname, password, is_admin, activated, phone_number, enrolled) 
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-			RETURNING id, password
-			`
-	args := []interface{}{emp.Name, emp.Surname, emp.Password, emp.IsAdmin, emp.Activated, emp.PhoneNumber, emp.Enrolled}
+		INSERT INTO employee (name, surname, password, is_admin, activated, phone_number, enrolled) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, password
+	`
+
+	args := []interface{}{
+		emp.Name,
+		emp.Surname,
+		emp.Password,
+		emp.IsAdmin,
+		emp.Activated,
+		emp.PhoneNumber,
+		emp.Enrolled,
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -49,16 +58,18 @@ func (m EmployeeModel) GetForToken(tokenScope, tokenPlaintext string) (*Employee
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 
 	query := `
-	SELECT employee.id, employee.name, employee.surname, employee.password, employee.activated, employee.is_admin
-	FROM employee
-	INNER JOIN tokens
-	ON employee.id = tokens.user_id
-	WHERE tokens.hash = $1
-	AND tokens.scope = $2
-	AND tokens.expiry > $3`
+		SELECT employee.id, employee.name, employee.surname, employee.password, employee.activated, employee.is_admin
+		FROM employee
+		INNER JOIN tokens ON employee.id = tokens.user_id
+		WHERE tokens.hash = $1
+		  AND tokens.scope = $2
+		  AND tokens.expiry > $3
+	`
 
 	args := []interface{}{tokenHash[:], tokenScope, time.Now()}
+
 	var emp Employee
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -78,14 +89,23 @@ func (m EmployeeModel) GetForToken(tokenScope, tokenPlaintext string) (*Employee
 }
 
 func (e EmployeeModel) Get(id int) (*Employee, error) {
-	query := `SELECT * FROM employee where id = $1`
+	query := `SELECT * FROM employee WHERE id = $1`
 
 	var emp Employee
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	row := e.DB.QueryRowContext(ctx, query, id)
-	err := row.Scan(&emp.Id, &emp.Name, &emp.Surname, &emp.Password, &emp.IsAdmin, &emp.Activated, &emp.PhoneNumber, &emp.Enrolled)
+	err := e.DB.QueryRowContext(ctx, query, id).Scan(
+		&emp.Id,
+		&emp.Name,
+		&emp.Surname,
+		&emp.Password,
+		&emp.IsAdmin,
+		&emp.Activated,
+		&emp.PhoneNumber,
+		&emp.Enrolled,
+	)
 
 	if err != nil {
 		return nil, err
@@ -95,9 +115,10 @@ func (e EmployeeModel) Get(id int) (*Employee, error) {
 }
 
 func (e EmployeeModel) GetAll() (*[]Employee, error) {
-	query := `SELECT * from employee`
+	query := `SELECT * FROM employee`
 
 	var emp []Employee
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -134,12 +155,22 @@ func (e EmployeeModel) GetAll() (*[]Employee, error) {
 
 func (e EmployeeModel) Update(id int, emp *Employee) error {
 	query := `
-			UPDATE employee 
-			SET name = $1, surname = $2, password = $3, is_admin = $4, activated = $5, phone_number = $6
-			WHERE id = $7
-			RETURNING id, password
+		UPDATE employee 
+		SET name = $1, surname = $2, password = $3, is_admin = $4, activated = $5, phone_number = $6
+		WHERE id = $7
+		RETURNING id, password
 	`
-	args := []interface{}{emp.Name, emp.Surname, emp.Password, emp.IsAdmin, emp.Activated, emp.PhoneNumber, id}
+
+	args := []interface{}{
+		emp.Name,
+		emp.Surname,
+		emp.Password,
+		emp.IsAdmin,
+		emp.Activated,
+		emp.PhoneNumber,
+		id,
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
